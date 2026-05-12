@@ -268,54 +268,13 @@ async function runAnalysis() {
       const b64 = await fileToBase64(file);
       content.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:b64 } });
     }
-    content.push({ type:'text', text:\`You are a senior mortgage readiness advisor at Anchor Point Institute. Analyze this bank statement thoroughly as a mortgage underwriter would.
-
-Return ONLY a valid JSON object with this exact structure (no markdown, no preamble):
-{
-  "overallScore": <0-100>,
-  "tier": "<Mortgage Ready|Almost Ready|Needs Work|Foundation Stage>",
-  "tierDescription": "<2 sentences>",
-  "dimensions": [
-    {"name":"Income Stability","score":<0-100>,"note":"<observation>"},
-    {"name":"Cash Flow Health","score":<0-100>,"note":"<observation>"},
-    {"name":"Spending Patterns","score":<0-100>,"note":"<observation>"},
-    {"name":"Banking Behavior","score":<0-100>,"note":"<observation>"},
-    {"name":"Reserve Building","score":<0-100>,"note":"<observation>"}
-  ],
-  "keyFindings":[
-    {"type":"<positive|warning|negative>","text":"<finding>"},
-    {"type":"<positive|warning|negative>","text":"<finding>"},
-    {"type":"<positive|warning|negative>","text":"<finding>"},
-    {"type":"<positive|warning|negative>","text":"<finding>"}
-  ],
-  "redFlags":[
-    {"flag":"<title>","severity":"<high|medium|low>","detail":"<what underwriter sees>","fix":"<action>"},
-    {"flag":"<title>","severity":"<high|medium|low>","detail":"<what underwriter sees>","fix":"<action>"},
-    {"flag":"<title>","severity":"<high|medium|low>","detail":"<what underwriter sees>","fix":"<action>"}
-  ],
-  "spendingBreakdown":{
-    "fixedExpenses":{"amount":<number>,"examples":"<examples>","assessment":"<note>"},
-    "variableNecessities":{"amount":<number>,"examples":"<examples>","assessment":"<note>"},
-    "foodAndDining":{"amount":<number>,"examples":"<examples>","assessment":"<note>"},
-    "entertainment":{"amount":<number>,"examples":"<examples>","assessment":"<note>"},
-    "discretionary":{"amount":<number>,"examples":"<examples>","assessment":"<note>"},
-    "estimatedMonthlyIncome":<number>,
-    "estimatedMonthlySavings":<number>,
-    "savingsRate":<0-100>
-  },
-  "cashFlowOpportunities":[
-    {"title":"<title>","description":"<detail>"},
-    {"title":"<title>","description":"<detail>"},
-    {"title":"<title>","description":"<detail>"}
-  ],
-  "priorityActions":["<action1>","<action2>","<action3>","<action4>","<action5>"],
-  "advisorNote":"<3-4 sentence warm professional note>"
+    content.push({ type:'text', text:\`You are a senior mortgage readiness advisor at Anchor Point Institute. Analyze this bank statement as a mortgage underwriter. Return ONLY valid JSON. Keep all strings under 12 words:\\n{"overallScore":0,"tier":"Foundation Stage","tierDescription":"Summary.","dimensions":[{"name":"Income Stability","score":0,"note":"Note."},{"name":"Cash Flow Health","score":0,"note":"Note."},{"name":"Spending Patterns","score":0,"note":"Note."},{"name":"Banking Behavior","score":0,"note":"Note."},{"name":"Reserve Building","score":0,"note":"Note."}],"keyFindings":[{"type":"positive","text":"Note."},{"type":"warning","text":"Note."},{"type":"negative","text":"Note."}],"redFlags":[{"flag":"Name","severity":"high","detail":"Note.","fix":"Note."},{"flag":"Name","severity":"medium","detail":"Note.","fix":"Note."}],"spendingBreakdown":{"fixedExpenses":{"amount":0,"examples":"Ex.","assessment":"Note."},"variableNecessities":{"amount":0,"examples":"Ex.","assessment":"Note."},"foodAndDining":{"amount":0,"examples":"Ex.","assessment":"Note."},"entertainment":{"amount":0,"examples":"Ex.","assessment":"Note."},"discretionary":{"amount":0,"examples":"Ex.","assessment":"Note."},"estimatedMonthlyIncome":0,"estimatedMonthlySavings":0,"savingsRate":0},"cashFlowOpportunities":[{"title":"T","description":"Note."},{"title":"T","description":"Note."}],"priorityActions":["Act 1.","Act 2.","Act 3."],"advisorNote":"Note."}
 }\` });
 
     const response = await fetch('https://anchor-point-api.onrender.com/analyze', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1500, messages:[{role:'user',content}] })
+      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:2000, messages:[{role:'user',content}] })
     });
 
     if (!response.ok) throw new Error('API error: ' + response.status);
