@@ -1,14 +1,4 @@
-const express = require('express');
-const cors = require('cors');
-const fetch = require('node-fetch');
-
-const app = express();
-app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-
-app.get('/', (req, res) => {
-  res.setHeader('Content-Type', 'text/html');
-  res.send(`<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -268,8 +258,8 @@ async function runAnalysis() {
       const b64 = await fileToBase64(file);
       content.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:b64 } });
     }
-    content.push({ type:'text', text:\`You are a senior mortgage readiness advisor at Anchor Point Institute. Analyze this bank statement as a mortgage underwriter. Return ONLY valid JSON. Keep all strings under 12 words:\\n{"overallScore":0,"tier":"Foundation Stage","tierDescription":"Summary.","dimensions":[{"name":"Income Stability","score":0,"note":"Note."},{"name":"Cash Flow Health","score":0,"note":"Note."},{"name":"Spending Patterns","score":0,"note":"Note."},{"name":"Banking Behavior","score":0,"note":"Note."},{"name":"Reserve Building","score":0,"note":"Note."}],"keyFindings":[{"type":"positive","text":"Note."},{"type":"warning","text":"Note."},{"type":"negative","text":"Note."}],"redFlags":[{"flag":"Name","severity":"high","detail":"Note.","fix":"Note."},{"flag":"Name","severity":"medium","detail":"Note.","fix":"Note."}],"spendingBreakdown":{"fixedExpenses":{"amount":0,"examples":"Ex.","assessment":"Note."},"variableNecessities":{"amount":0,"examples":"Ex.","assessment":"Note."},"foodAndDining":{"amount":0,"examples":"Ex.","assessment":"Note."},"entertainment":{"amount":0,"examples":"Ex.","assessment":"Note."},"discretionary":{"amount":0,"examples":"Ex.","assessment":"Note."},"estimatedMonthlyIncome":0,"estimatedMonthlySavings":0,"savingsRate":0},"cashFlowOpportunities":[{"title":"T","description":"Note."},{"title":"T","description":"Note."}],"priorityActions":["Act 1.","Act 2.","Act 3."],"advisorNote":"Note."}
-}\` });
+    content.push({ type:'text', text:`You are a senior mortgage readiness advisor at Anchor Point Institute. Analyze this bank statement as a mortgage underwriter. Return ONLY valid JSON. Keep all strings under 12 words:\n{"overallScore":0,"tier":"Foundation Stage","tierDescription":"Summary.","dimensions":[{"name":"Income Stability","score":0,"note":"Note."},{"name":"Cash Flow Health","score":0,"note":"Note."},{"name":"Spending Patterns","score":0,"note":"Note."},{"name":"Banking Behavior","score":0,"note":"Note."},{"name":"Reserve Building","score":0,"note":"Note."}],"keyFindings":[{"type":"positive","text":"Note."},{"type":"warning","text":"Note."},{"type":"negative","text":"Note."}],"redFlags":[{"flag":"Name","severity":"high","detail":"Note.","fix":"Note."},{"flag":"Name","severity":"medium","detail":"Note.","fix":"Note."}],"spendingBreakdown":{"fixedExpenses":{"amount":0,"examples":"Ex.","assessment":"Note."},"variableNecessities":{"amount":0,"examples":"Ex.","assessment":"Note."},"foodAndDining":{"amount":0,"examples":"Ex.","assessment":"Note."},"entertainment":{"amount":0,"examples":"Ex.","assessment":"Note."},"discretionary":{"amount":0,"examples":"Ex.","assessment":"Note."},"estimatedMonthlyIncome":0,"estimatedMonthlySavings":0,"savingsRate":0},"cashFlowOpportunities":[{"title":"T","description":"Note."},{"title":"T","description":"Note."}],"priorityActions":["Act 1.","Act 2.","Act 3."],"advisorNote":"Note."}
+}` });
 
     const response = await fetch('https://anchor-point-api.onrender.com/analyze', {
       method:'POST',
@@ -280,7 +270,7 @@ async function runAnalysis() {
     if (!response.ok) throw new Error('API error: ' + response.status);
     const data = await response.json();
     const rawText = (data.content || []).map(b => b.text || '').join('');
-    const clean = rawText.replace(/\`\`\`json|\`\`\`/g,'').trim();
+    const clean = rawText.replace(/```json|```/g,'').trim();
     const parsed = JSON.parse(clean);
 
     document.getElementById('loading').classList.remove('show');
@@ -314,90 +304,90 @@ function renderResults(data) {
   ];
   const savC = (sb.savingsRate||0)>=10?'var(--success)':(sb.savingsRate||0)>=5?'var(--warning)':'var(--danger)';
 
-  document.getElementById('results').innerHTML = \`
+  document.getElementById('results').innerHTML = `
     <div class="score-hero">
       <div class="score-label">Mortgage Readiness Score</div>
-      <div class="score-number \${scClass(data.overallScore)}">\${data.overallScore}</div>
-      <div class="score-tier" style="color:\${sc(data.overallScore)}">\${data.tier}</div>
-      <div class="score-desc">\${data.tierDescription}</div>
+      <div class="score-number ${scClass(data.overallScore)}">${data.overallScore}</div>
+      <div class="score-tier" style="color:${sc(data.overallScore)}">${data.tier}</div>
+      <div class="score-desc">${data.tierDescription}</div>
     </div>
 
     <div class="dimensions-grid">
-      \${(data.dimensions||[]).map(d=>\`
+      ${(data.dimensions||[]).map(d=>`
         <div class="dimension-card">
           <div class="dim-header">
-            <div class="dim-name">\${d.name}</div>
-            <div class="dim-score" style="color:\${sc(d.score)}">\${d.score}</div>
+            <div class="dim-name">${d.name}</div>
+            <div class="dim-score" style="color:${sc(d.score)}">${d.score}</div>
           </div>
-          <div class="dim-bar"><div class="dim-fill" style="width:\${d.score}%;background:\${sc(d.score)}"></div></div>
-          <div class="dim-note">\${d.note}</div>
-        </div>\`).join('')}
+          <div class="dim-bar"><div class="dim-fill" style="width:${d.score}%;background:${sc(d.score)}"></div></div>
+          <div class="dim-note">${d.note}</div>
+        </div>`).join('')}
     </div>
 
     <div class="advisor-note">
       <div class="advisor-label">📋 Advisor Notes</div>
-      <div class="advisor-text">\${data.advisorNote}</div>
+      <div class="advisor-text">${data.advisorNote}</div>
     </div>
 
     <div class="section-card">
       <div class="section-title">Spending Pattern Breakdown</div>
       <div class="income-summary">
-        <div><div class="income-stat-label">Est. Monthly Income</div><div class="income-stat-value">$\${(sb.estimatedMonthlyIncome||0).toLocaleString()}</div></div>
-        <div><div class="income-stat-label">Total Spending</div><div class="income-stat-value" style="color:var(--danger)">$\${total.toLocaleString()}</div></div>
-        <div><div class="income-stat-label">Savings Rate</div><div class="income-stat-value" style="color:\${savC}">\${sb.savingsRate||0}%</div></div>
+        <div><div class="income-stat-label">Est. Monthly Income</div><div class="income-stat-value">$${(sb.estimatedMonthlyIncome||0).toLocaleString()}</div></div>
+        <div><div class="income-stat-label">Total Spending</div><div class="income-stat-value" style="color:var(--danger)">$${total.toLocaleString()}</div></div>
+        <div><div class="income-stat-label">Savings Rate</div><div class="income-stat-value" style="color:${savC}">${sb.savingsRate||0}%</div></div>
       </div>
       <div class="spending-grid">
-        \${cats.map(cat=>{
+        ${cats.map(cat=>{
           const pct=total>0?Math.round(((cat.data?.amount||0)/total)*100):0;
-          return \`<div class="spending-card">
-            <div class="spending-category">\${cat.label}</div>
-            <div class="spending-amount">$\${(cat.data?.amount||0).toLocaleString()}</div>
-            <div class="spending-bar-wrap"><div class="spending-bar-fill" style="width:\${pct}%;background:\${cat.color}"></div></div>
-            <div class="spending-examples">\${cat.data?.examples||''}</div>
-            <div class="spending-assessment">\${cat.data?.assessment||''}</div>
-          </div>\`;
+          return `<div class="spending-card">
+            <div class="spending-category">${cat.label}</div>
+            <div class="spending-amount">$${(cat.data?.amount||0).toLocaleString()}</div>
+            <div class="spending-bar-wrap"><div class="spending-bar-fill" style="width:${pct}%;background:${cat.color}"></div></div>
+            <div class="spending-examples">${cat.data?.examples||''}</div>
+            <div class="spending-assessment">${cat.data?.assessment||''}</div>
+          </div>`;
         }).join('')}
       </div>
     </div>
 
     <div class="section-card">
       <div class="section-title">Key Findings</div>
-      \${(data.keyFindings||[]).map(f=>\`
+      ${(data.keyFindings||[]).map(f=>`
         <div class="finding-item">
-          <div class="finding-icon">\${fi(f.type)}</div>
-          <div class="finding-text">\${f.text}</div>
-        </div>\`).join('')}
+          <div class="finding-icon">${fi(f.type)}</div>
+          <div class="finding-text">${f.text}</div>
+        </div>`).join('')}
     </div>
 
     <div class="section-card">
       <div class="section-title">🚨 Mortgage Underwriter Red Flags</div>
-      \${(data.redFlags&&data.redFlags.length)?data.redFlags.map(f=>\`
-        <div class="red-flag-item \${f.severity}">
+      ${(data.redFlags&&data.redFlags.length)?data.redFlags.map(f=>`
+        <div class="red-flag-item ${f.severity}">
           <div class="red-flag-header">
-            <span class="red-flag-severity severity-\${f.severity}">\${f.severity} risk</span>
-            <span class="red-flag-title">\${f.flag}</span>
+            <span class="red-flag-severity severity-${f.severity}">${f.severity} risk</span>
+            <span class="red-flag-title">${f.flag}</span>
           </div>
-          <div class="red-flag-detail">\${f.detail}</div>
-          <div class="red-flag-fix">→ \${f.fix}</div>
-        </div>\`).join(''):'<p style="color:var(--success);font-size:14px">✅ No significant underwriter red flags detected.</p>'}
+          <div class="red-flag-detail">${f.detail}</div>
+          <div class="red-flag-fix">→ ${f.fix}</div>
+        </div>`).join(''):'<p style="color:var(--success);font-size:14px">✅ No significant underwriter red flags detected.</p>'}
     </div>
 
     <div class="section-card">
       <div class="section-title">Cash Flow Opportunities</div>
-      \${(data.cashFlowOpportunities||[]).map(o=>\`
+      ${(data.cashFlowOpportunities||[]).map(o=>`
         <div class="opportunity-item">
-          <div class="opp-title">💡 \${o.title}</div>
-          <div class="opp-desc">\${o.description}</div>
-        </div>\`).join('')}
+          <div class="opp-title">💡 ${o.title}</div>
+          <div class="opp-desc">${o.description}</div>
+        </div>`).join('')}
     </div>
 
     <div class="section-card">
       <div class="section-title">Your Priority Action Plan</div>
-      \${(data.priorityActions||[]).map((a,i)=>\`
+      ${(data.priorityActions||[]).map((a,i)=>`
         <div class="action-item">
-          <div class="action-num">\${i+1}</div>
-          <div class="action-text">\${a}</div>
-        </div>\`).join('')}
+          <div class="action-num">${i+1}</div>
+          <div class="action-text">${a}</div>
+        </div>`).join('')}
     </div>
 
     <div class="portal-instructions">
@@ -414,7 +404,7 @@ function renderResults(data) {
     </div>
     <div class="email-status" id="emailStatus"></div>
     <div class="privacy-notice">🔒 <strong>Your privacy is protected.</strong> Your bank statement is analyzed in real time and is <strong>never stored, saved, or shared</strong>. All data is permanently deleted immediately after your results are generated.</div>
-  \`;
+  `;
   document.getElementById('results').classList.add('show');
   document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -422,8 +412,8 @@ function renderResults(data) {
 async function sendAdvisorEmail(data) {
   try {
     const sb = data.spendingBreakdown||{};
-    const body = \`NEW BANK STATEMENT AUDIT\\nDate: \${new Date().toLocaleString()}\\n\\nSCORE: \${data.overallScore}/100 — \${data.tier}\\n\${data.tierDescription}\\n\\nRED FLAGS:\\n\${(data.redFlags||[]).map(f=>\`[\${f.severity.toUpperCase()}] \${f.flag}: \${f.detail}\`).join('\\n')}\\n\\nSPENDING:\\nIncome: $\${(sb.estimatedMonthlyIncome||0).toLocaleString()} | Savings Rate: \${sb.savingsRate||0}%\\nFixed: $\${(sb.fixedExpenses?.amount||0).toLocaleString()} | Food: $\${(sb.foodAndDining?.amount||0).toLocaleString()} | Discretionary: $\${(sb.discretionary?.amount||0).toLocaleString()}\\n\\nADVISOR NOTE:\\n\${data.advisorNote}\`;
-    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, { to_email:ADVISOR_EMAIL, subject:\`New Audit — Score: \${data.overallScore}/100 (\${data.tier})\`, message:body });
+    const body = `NEW BANK STATEMENT AUDIT\nDate: ${new Date().toLocaleString()}\n\nSCORE: ${data.overallScore}/100 — ${data.tier}\n${data.tierDescription}\n\nRED FLAGS:\n${(data.redFlags||[]).map(f=>`[${f.severity.toUpperCase()}] ${f.flag}: ${f.detail}`).join('\n')}\n\nSPENDING:\nIncome: $${(sb.estimatedMonthlyIncome||0).toLocaleString()} | Savings Rate: ${sb.savingsRate||0}%\nFixed: $${(sb.fixedExpenses?.amount||0).toLocaleString()} | Food: $${(sb.foodAndDining?.amount||0).toLocaleString()} | Discretionary: $${(sb.discretionary?.amount||0).toLocaleString()}\n\nADVISOR NOTE:\n${data.advisorNote}`;
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, { to_email:ADVISOR_EMAIL, subject:`New Audit — Score: ${data.overallScore}/100 (${data.tier})`, message:body });
     const s = document.getElementById('emailStatus');
     if(s){ s.textContent='✅ Your advisor has been notified.'; s.className='email-status sent'; }
   } catch(e) { console.warn('Email failed:',e); }
@@ -528,27 +518,3 @@ function resetTool() {
 </script>
 </body>
 </html>
-`);
-});
-
-app.post('/analyze', async (req, res) => {
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify(req.body)
-    });
-    const text = await response.text();
-    res.setHeader('Content-Type', 'application/json');
-    res.send(text);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Server running on port ' + PORT));
